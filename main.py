@@ -7,7 +7,6 @@ import requests, json
 import os.path, time
 from os import path
 import pyowm
-import psutil
 from playsound import playsound
 
 root = Tkinter.Tk()
@@ -216,17 +215,20 @@ def displayWeather():
     f_weatherBG.place(relheight = 0.85, relwidth = 1, relx = 0, rely = 0.15)
     f_weatherMainStage.place(relheight = 0.5, relwidth = 0.7, relx = 0.15, rely = 0.1)
     f_forecast.place(relheight = 0.3, relwidth = 0.9, relx = 0.05, rely = 0.65)
+    l_weatherTodayWeatherAndLoc.configure(image = weatherImages[weatherNow["weather"][0]["main"]])
     l_weatherTodayWeatherAndLoc.pack(side = "top", fill = "x")
 
     for i in range(4):
-        var_forecastDict["forecast%d" % (i)].pack(side = "left", expand = True, fill = "both")
         temp_epochTime = temp_epochTimeNow + 86400*i
         temp_time = datetime.datetime.fromtimestamp(temp_epochTime)
-        temp_day = temp_time.strftime("%a")
         temp_weather = getWeatherNear(temp_time, var_weatherData)
+        temp_day = temp_time.strftime("%a")
+
+        var_forecastDict["forecast%d" % (i)].configure(image = weatherImages[temp_weather["weather"][0]["main"]])
+        var_forecastDict["forecast%d" % (i)].pack(side = "left", expand = True, fill = "both")
         temp_text = "%d%sF\n%s" % (int(kelvin_to_f(temp_weather["main"]["temp"])), degree_sign, temp_day )
         var_forecastDict["var%d" % (i)].set(temp_text)
-        var_forecastDict["label%d" % (i)].pack(side = "top", fill = "y")
+        var_forecastDict["label%d" % (i)].pack(side = "top", fill = "both")
 
 
 var_weatherData = getWeather()
@@ -234,19 +236,36 @@ var_weatherAndLoc = Tkinter.StringVar()
 
 
 f_weatherBG = Tkinter.Frame(root, bg = "black", highlightbackground = fontcolor)
-f_weatherMainStage = Tkinter.Frame(f_weatherBG, bd = 1, relief = "sunken", bg = "black", highlightbackground = fontcolor, highlightcolor = fontcolor)
+f_weatherMainStage = Tkinter.Frame(f_weatherBG, bd = 1, relief = "sunken", bg = fontcolor, highlightbackground = fontcolor, highlightcolor = fontcolor)
 f_forecast = Tkinter.Frame(f_weatherBG, bd = 1, relief = "sunken", bg = "black", highlightbackground = fontcolor, highlightcolor = fontcolor)
-l_weatherTodayWeatherAndLoc = Tkinter.Label(f_weatherMainStage, textvariable = var_weatherAndLoc, font = ("Helvetica", 40), fg = fontcolor, bg = "black")
+l_weatherTodayWeatherAndLoc = Tkinter.Label(f_weatherMainStage, textvariable = var_weatherAndLoc, font = ("Helvetica", 40), fg = "black", bg = fontcolor, compound = "bottom")
 var_forecastDict = {}
 for i in range(4):
-    var_forecastDict["forecast%d" % (i)] = Tkinter.Label(f_forecast, bd = 1, relief = "raised", bg = "black", highlightbackground = fontcolor, highlightcolor = fontcolor, fg = fontcolor)
+    var_forecastDict["forecast%d" % (i)] = Tkinter.Label(f_forecast, bd = 1, relief = "raised", bg = fontcolor, highlightbackground = "black", highlightcolor = fontcolor, fg = "black", compound = "bottom")
     var_forecastDict["var%d" % (i)] = Tkinter.StringVar()
-    var_forecastDict["label%d" % (i)] = Tkinter.Label(var_forecastDict["forecast%d" % (i)], font = ("Helvetica", 20), textvariable = var_forecastDict["var%d" % (i)], bg = "black", highlightbackground = fontcolor, highlightcolor = fontcolor, fg = fontcolor)
+    var_forecastDict["label%d" % (i)] = Tkinter.Label(var_forecastDict["forecast%d" % (i)], font = ("Helvetica", 15), textvariable = var_forecastDict["var%d" % (i)], bg = fontcolor, highlightbackground = fontcolor, highlightcolor = fontcolor, fg = "black")
 
+weatherImages = {}
+weatherH = 50
+weatherW = 50
+weatherImages["Clear"] =        ImageTk.PhotoImage(Image.open("icons/iconfinder_weather_cloud_sun_moon_rain-49_5896925.png").resize((weatherW, weatherH), Image.ANTIALIAS))
+weatherImages["Clouds"] =       ImageTk.PhotoImage(Image.open("icons/iconfinder_weather_cloud_sun_moon_rain-41_5896917.png").resize((weatherW, weatherH), Image.ANTIALIAS))
+weatherImages["Thunderstorm"] = ImageTk.PhotoImage(Image.open("icons/iconfinder_weather_cloud_sun_moon_rain-08_5896885.png").resize((weatherW, weatherH), Image.ANTIALIAS))
+weatherImages["Drizzle"] =      ImageTk.PhotoImage(Image.open("icons/iconfinder_weather_cloud_sun_moon_rain-03_5896879.png").resize((weatherW, weatherH), Image.ANTIALIAS))
+weatherImages["Rain"] =         ImageTk.PhotoImage(Image.open("icons/iconfinder_weather_cloud_sun_moon_rain-02_5896922.png").resize((weatherW, weatherH), Image.ANTIALIAS))
+weatherImages["Snow"] =         ImageTk.PhotoImage(Image.open("icons/iconfinder_weather_cloud_sun_moon_rain-21_5896896.png").resize((weatherW, weatherH), Image.ANTIALIAS))
+weatherImages["Mist"] =         ImageTk.PhotoImage(Image.open("icons/iconfinder_weather_cloud_sun_moon_rain-17_5896895.png").resize((weatherW, weatherH), Image.ANTIALIAS))
+weatherImages["Smoke"] =        ImageTk.PhotoImage(Image.open("icons/iconfinder_weather_cloud_sun_moon_rain-17_5896895.png").resize((weatherW, weatherH), Image.ANTIALIAS))
+weatherImages["Haze"] =         ImageTk.PhotoImage(Image.open("icons/iconfinder_weather_cloud_sun_moon_rain-17_5896895.png").resize((weatherW, weatherH), Image.ANTIALIAS))
+weatherImages["Dust"] =         ImageTk.PhotoImage(Image.open("icons/iconfinder_weather_cloud_sun_moon_rain-17_5896895.png").resize((weatherW, weatherH), Image.ANTIALIAS))
+weatherImages["Fog"] =          ImageTk.PhotoImage(Image.open("icons/iconfinder_weather_cloud_sun_moon_rain-17_5896895.png").resize((weatherW, weatherH), Image.ANTIALIAS))
+weatherImages["Sand"] =         ImageTk.PhotoImage(Image.open("icons/iconfinder_weather_cloud_sun_moon_rain-17_5896895.png").resize((weatherW, weatherH), Image.ANTIALIAS))
+weatherImages["Ash"] =          ImageTk.PhotoImage(Image.open("icons/iconfinder_weather_cloud_sun_moon_rain-17_5896895.png").resize((weatherW, weatherH), Image.ANTIALIAS))
+weatherImages["Squall"] =       ImageTk.PhotoImage(Image.open("icons/iconfinder_weather_cloud_sun_moon_rain-17_5896895.png").resize((weatherW, weatherH), Image.ANTIALIAS))
+weatherImages["Tornado"] =      ImageTk.PhotoImage(Image.open("icons/iconfinder_weather_cloud_sun_moon_rain-17_5896895.png").resize((weatherW, weatherH), Image.ANTIALIAS))
+root.weatherImages = weatherImages
 
-
-
-# Alarms menu
+# Alarms menu 
 
 # used to convert reoccuring alarm to day list
 def alarmToDayList(alarm):
@@ -401,7 +420,7 @@ var_alarmsList = []
 f_alarms = Tkinter.Frame(root, bg = "black")
 f_subAlarms = Tkinter.Frame(f_alarms, relief = "sunken", bd = 1, bg = "black", highlightbackground = fontcolor)
 sb_alarms = Tkinter.Scrollbar(f_subAlarms, bg = "black", highlightbackground = fontcolor, highlightcolor = fontcolor, troughcolor = fontcolor)
-list_alarms = Tkinter.Listbox(f_subAlarms, yscrollcommand = sb_alarms.set , bg = "black", highlightbackground = fontcolor, highlightcolor = fontcolor, fg = fontcolor, font = ("Helvetica", 40))
+list_alarms = Tkinter.Listbox(f_subAlarms, yscrollcommand = sb_alarms.set , bg = "black", highlightbackground = fontcolor, highlightcolor = fontcolor, fg = fontcolor, font = ("Helvetica", 15))
 list_alarms.bind('<<ListboxSelect>>', onAlarmListBoxSelect)
 b_addAlarm = Tkinter.Button(f_alarms, text = "Add Alarm", command = displayAlarmDialogue, font = ("Helvetica", 40), highlightbackground = fontcolor, highlightcolor = fontcolor, bg = "black", fg = fontcolor)
 
